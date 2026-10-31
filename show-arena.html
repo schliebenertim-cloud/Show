@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Show-Arena</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Figtree:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#02031f;--bg2:#0b1070;--ink:#f4f6ff;--mute:#9aa6f0;--gold:#ffc93c;--orange:#ff9a2e;--panel:#080c4a;--edge:#cfd8ff;--ok:#1fb46a;--bad:#e0334c;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;min-height:100%}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:radial-gradient(ellipse at 50% 0%,var(--bg2),var(--bg) 70%) fixed;background-color:var(--bg);color:var(--ink);font-family:Figtree,system-ui,sans-serif;line-height:1.45}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-conic-gradient(from 0deg at 50% -25%,rgba(120,140,255,.11) 0 5deg,transparent 5deg 17deg)}
+h1,h2,h3{font-family:Gloock,Georgia,serif;font-weight:400;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.wrap{position:relative;max-width:1000px;margin:0 auto;padding:24px 16px 48px}
+.wrap.pres{max-width:1400px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.brand{font-family:Gloock,Georgia,serif;font-size:1.4rem;color:var(--gold)}
+.logo{width:110px;height:110px;margin:0 auto 14px;border-radius:50%;border:4px solid var(--edge);display:grid;place-items:center;font-family:Gloock,Georgia,serif;font-size:3.4rem;background:radial-gradient(circle,#2a35d6,#05073a 70%);box-shadow:0 0 44px #4a5bff}
+.ghost{background:none;border:1px solid var(--edge);border-radius:999px;padding:8px 16px}
+.ghost:hover{border-color:var(--gold)}
+.gold{background:linear-gradient(180deg,#ffd75e,#e8a512);color:#1a1300;border:0;border-radius:999px;padding:14px 28px;font-weight:800;font-size:1.05rem}
+.gold:disabled{opacity:.4;cursor:not-allowed}
+.hero{text-align:center;padding:20px 0 34px}
+.hero h1{font-size:clamp(2.4rem,8vw,4.6rem);line-height:1.05}
+.hero p{color:var(--mute);max-width:46ch;margin:14px auto 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.card{text-align:left;background:var(--panel);border:1px solid var(--edge);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:8px;min-height:190px}
+.card.on{border-color:var(--gold);background:linear-gradient(160deg,#1a2290,var(--panel))}
+.card.on:hover{transform:translateY(-3px);transition:transform .15s}
+.card.off{opacity:.55;cursor:default}
+.card .ic{font-size:2.2rem}
+.card h3{font-size:1.4rem}
+.card p{margin:0;color:var(--mute);font-size:.95rem}
+.tag{margin-top:auto;font-weight:600;color:var(--gold)}
+.panel{background:var(--panel);border:1px solid var(--edge);border-radius:18px;padding:24px;max-width:560px;margin:0 auto}
+.panel h2{font-size:2rem;margin-bottom:6px}
+.panel p{color:var(--mute);margin:0 0 16px}
+.names{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+input,textarea{background:#02031f;color:var(--ink);border:1px solid var(--edge);border-radius:10px;padding:12px;font:inherit;width:100%}
+input[type=checkbox]{width:auto}
+textarea{margin-top:12px;font-family:ui-monospace,Menlo,monospace;font-size:.8rem}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sec{margin-top:16px}
+.who{color:var(--mute);margin-bottom:10px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;align-items:center}
+.who b{color:var(--gold)}
+.big{font-family:Gloock,Georgia,serif;font-size:2.2rem;color:var(--gold)}
+/* Sechseck-Felder wie in der Sendung */
+.hl{display:flex;align-items:center;margin-bottom:10px}
+.hl::before,.hl::after{content:"";flex:0 0 14px;height:3px;background:var(--edge)}
+.hl.gone{visibility:hidden}
+.hex{flex:1;display:block;border:0;padding:3px;background:var(--edge);clip-path:polygon(24px 0,calc(100% - 24px) 0,100% 50%,calc(100% - 24px) 100%,24px 100%,0 50%);color:var(--ink);font:inherit;font-weight:600;text-align:left;cursor:default;min-width:0}
+.hex>span{display:flex;align-items:center;min-height:54px;padding:10px 40px;background:linear-gradient(180deg,#1a22a8,#05073a 55%,#0b1070);clip-path:polygon(22px 0,calc(100% - 22px) 0,100% 50%,calc(100% - 22px) 100%,22px 100%,0 50%)}
+.hex.q>span{justify-content:center;text-align:center;min-height:92px;font-size:clamp(1.05rem,2.6vw,1.5rem)}
+.hex i{font-style:normal;color:var(--orange);font-weight:800;margin-right:10px}
+.hex em{font-style:normal;color:#5cf0a0;margin-left:8px;font-weight:800}
+button.hex{cursor:pointer}
+button.hex:hover:not(:disabled){background:var(--gold)}
+.hex.sel{background:var(--orange)}
+.hex.sel>span{background:linear-gradient(180deg,#ffb04d,#c25a00);color:#1a0900}
+.hex.sel i{color:#1a0900}
+.hex.ok{background:#8cf0b8}
+.hex.ok>span{background:linear-gradient(180deg,#2fd486,#0c6b3d);color:#fff}
+.hex.bad{background:#ff9aa8}
+.hex.bad>span{background:linear-gradient(180deg,#f0506a,#8a1428);color:#fff}
+.hex.ok i,.hex.bad i{color:#fff}
+.ans{display:grid;grid-template-columns:1fr 1fr;gap:0 26px}
+.game{display:grid;grid-template-columns:1fr 230px;gap:22px;align-items:start}
+.jk{display:flex;gap:14px;flex-wrap:wrap;margin:14px 0}
+.j{display:flex;align-items:center;justify-content:center;width:80px;height:54px;border:3px solid var(--edge);border-radius:50%;background:radial-gradient(#2631d0,#05073a);font-weight:800;font-size:1.05rem}
+.j:disabled,.j.used{opacity:.3;text-decoration:line-through}
+button.j:hover:not(:disabled){border-color:var(--gold)}
+.ladder{list-style:none;margin:0;padding:6px;display:flex;flex-direction:column-reverse;gap:2px;font-weight:700;font-size:.95rem;border:1px solid var(--edge);border-radius:12px;background:rgba(2,3,31,.55)}
+.ladder li{display:flex;justify-content:space-between;gap:10px;padding:5px 12px;color:var(--orange);border-radius:4px}
+.ladder li.safe{color:#fff}
+.ladder li.now{background:linear-gradient(90deg,#ffb04d,#c25a00);color:#1a0900}
+.ladder li.done{opacity:.4}
+.help{background:rgba(2,3,31,.6);border:1px dashed var(--gold);border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.bars{display:flex;gap:14px;align-items:flex-end;height:110px}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;font-size:.85rem}
+.bar div{width:100%;background:var(--orange);border-radius:6px 6px 0 0}
+.score{list-style:none;padding:0;margin:0 0 18px;display:flex;flex-direction:column;gap:8px}
+.score li{display:flex;justify-content:space-between;background:#02031f;border-radius:10px;padding:12px 14px}
+.score li:first-child,.score li.win{border:1px solid var(--gold)}
+.join{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.join input{max-width:150px;text-transform:lowercase;letter-spacing:.2em;text-align:center;font-weight:800}
+.pres .hex.q>span{font-size:clamp(1.4rem,3.2vw,2.5rem);min-height:130px}
+.pres .hex>span{font-size:clamp(1.1rem,2.4vw,1.9rem);min-height:76px}
+.pres .ladder{font-size:1.2rem}
+.cand .ans{grid-template-columns:1fr}
+.cand .hex>span{min-height:68px;font-size:1.15rem}
+@media(max-width:760px){.game{grid-template-columns:1fr}.ladder{flex-direction:row;overflow-x:auto}.ladder li{flex:0 0 auto}.ans{grid-template-columns:1fr}.hex>span{padding:10px 30px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const L=[50,100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,500000,1000000];
+const SAFE=[4,9];
+const fmt=n=>n.toLocaleString('de-DE')+' €';
+const fmtT=ms=>(ms/1000).toFixed(2).replace('.',',')+' s';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const DEF=[
+["Welche Farbe hat eine reife Banane?",["Gelb","Blau","Schwarz","Lila"]],
+["Wie viele Beine hat eine Spinne?",["Acht","Sechs","Zehn","Vier"]],
+["Wie heißt die Hauptstadt von Deutschland?",["Berlin","München","Hamburg","Köln"]],
+["Welches ist das größte lebende Landtier?",["Afrikanischer Elefant","Giraffe","Nashorn","Nilpferd"]],
+["Welches Gas nehmen Pflanzen für die Photosynthese auf?",["Kohlenstoffdioxid","Sauerstoff","Stickstoff","Helium"]],
+["Wer malte die „Mona Lisa“?",["Leonardo da Vinci","Michelangelo","Raffael","Rembrandt"]],
+["Welches chemische Symbol hat Gold?",["Au","Ag","Go","Gd"]],
+["Welcher Planet ist der Sonne am nächsten?",["Merkur","Venus","Mars","Erde"]],
+["Von wem stammt die Erzählung „Die Verwandlung“?",["Franz Kafka","Thomas Mann","Hermann Hesse","Bertolt Brecht"]],
+["In welchem Jahr fiel die Berliner Mauer?",["1989","1987","1991","1961"]],
+["Welche Stadt ist die Hauptstadt von Australien?",["Canberra","Sydney","Melbourne","Perth"]],
+["Wie viele Chromosomen hat ein Mensch normalerweise?",["46","44","48","42"]],
+["Welches Element hat die Ordnungszahl 26?",["Eisen","Kupfer","Nickel","Zink"]],
+["Wer komponierte die „Mondscheinsonate“?",["Ludwig van Beethoven","Wolfgang Amadeus Mozart","Frédéric Chopin","Franz Schubert"]],
+["Wer war der erste Mensch im Weltall?",["Juri Gagarin","Alan Shepard","Neil Armstrong","Waleri Bykowski"]]
+].map((x,k)=>({stufe:k+1,frage:x[0],antworten:x[1]}));
+const DEFF=[
+["Ordne die Tiere nach Größe, vom kleinsten zum größten.",["Maus","Katze","Pferd","Elefant"]],
+["Ordne die Planeten nach Abstand zur Sonne, vom nächsten zum fernsten.",["Merkur","Erde","Jupiter","Neptun"]],
+["Ordne die Erfindungen, von der ältesten zur jüngsten.",["Rad","Buchdruck","Dampfmaschine","Internet"]],
+["Ordne die Städte von Norden nach Süden.",["Hamburg","Berlin","Frankfurt","München"]],
+["Ordne die Berge nach Höhe, vom höchsten zum niedrigsten.",["Mount Everest","K2","Mont Blanc","Zugspitze"]],
+["Ordne die Zeitspannen, von der kürzesten zur längsten.",["Sekunde","Minute","Stunde","Woche"]]
+].map(x=>({frage:x[0],antworten:x[1]}));
+const SHOWS=[
+{ic:'💰',name:'Wer wird Millionär?',desc:'Fragen-Ordnen um den Stuhl, dann 15 Fragen mit 3 Jokern. Moderation, Präsentation und Kandidaten auf eigenen Geräten.',on:1},
+{ic:'🗣️',name:'Familien-Duell',desc:'Zwei Teams raten die beliebtesten Antworten.'},
+{ic:'❓',name:'Jeopardy!',desc:'Themenfelder, Punkte, Fragen als Antworten.'},
+{ic:'🧠',name:'Wer weiß denn sowas?',desc:'Quizduell mit Kandidaten und Wissensfallen.'}
+];
+const str4=a=>Array.isArray(a)&&a.length===4&&a.every(x=>typeof x==='string'&&x.trim());
+function chkQ(a){
+ if(!Array.isArray(a))return{err:'„fragen“ muss eine Liste sein.'};
+ const b=[];
+ for(let k=0;k<a.length;k++){const e=a[k];
+  if(!e||typeof e.frage!=='string'||!e.frage.trim()||!str4(e.antworten))return{err:'Frage '+(k+1)+': Es braucht „frage“ und genau 4 „antworten“ (die richtige zuerst).'};
+  const s=e.stufe===undefined?(k%15)+1:e.stufe;
+  if(!Number.isInteger(s)||s<1||s>15)return{err:'Frage '+(k+1)+': „stufe“ muss eine Zahl von 1 bis 15 sein.'};
+  b.push({stufe:s,frage:e.frage.trim(),antworten:e.antworten.map(x=>x.trim())})}
+ const miss=[];for(let s=1;s<=15;s++)if(!b.some(x=>x.stufe===s))miss.push(s);
+ if(miss.length)return{err:'Für diese Stufen fehlt eine Frage: '+miss.join(', ')+'.'};
+ return{bank:b};
+}
+function chkO(a){
+ if(!Array.isArray(a)||!a.length)return{err:'„ordnen“ braucht mindestens eine Frage.'};
+ const b=[];
+ for(let k=0;k<a.length;k++){const e=a[k];
+  if(!e||typeof e.frage!=='string'||!e.frage.trim()||!str4(e.antworten)||new Set(e.antworten.map(x=>x.trim())).size!==4)return{err:'Ordnen-Frage '+(k+1)+': Es braucht „frage“ und 4 verschiedene „antworten“ in der richtigen Reihenfolge.'};
+  b.push({frage:e.frage.trim(),antworten:e.antworten.map(x=>x.trim())})}
+ return{ffb:b};
+}
+function parseAll(t){
+ let j;try{j=JSON.parse(t)}catch(e){return{err:'Das ist keine gültige JSON-Datei.'}}
+ if(Array.isArray(j))j={fragen:j};
+ if(!j||typeof j!=='object')return{err:'Die Datei hat ein unbekanntes Format.'};
+ const out={};
+ if(j.fragen!==undefined){const r=chkQ(j.fragen);if(r.err)return r;out.bank=r.bank}
+ if(j.ordnen!==undefined){const r=chkO(j.ordnen);if(r.err)return r;out.ffb=r.ffb}
+ if(!out.bank&&!out.ffb)return{err:'Weder „fragen“ noch „ordnen“ gefunden.'};
+ return out;
+}
+function loadBank(){try{const t=localStorage.getItem('sa-bank2');if(t){const r=parseAll(t);if(!r.err)return{bank:r.bank||DEF,ffb:r.ffb||DEFF}}}catch(e){}return{bank:DEF,ffb:DEFF}}
+const app=document.getElementById('app');
+const B0=loadBank();
+let S={scr:'hub',role:null,names:['',''],players:[],cur:0,g:null,ff:null,tmr:null,sy:null,hi:null,room:null,code:'',bank:B0.bank,ffb:B0.ffb,msg:'',hint:null,used:new Set(),usedF:new Set(),devs:{p:0,k:0},why:''};
+let P=null,R=null,myName='',C={rid:null,t0:0,seq:[],sent:false};
+window.onerror=(m)=>{app.innerHTML='<div class="panel"><h2>Fehler</h2><p>'+esc(m)+'</p></div>'};
+if(window.claude&&claude.use){claude.use('room').then(r=>{R=r;if(S.scr==='hub'&&!S.role)render()}).catch(()=>{})}
+
+/* ---------- Bausteine ---------- */
+const hx=(cls,inner,tag,attrs)=>{tag=tag||'div';return `<div class="hl ${cls&&cls.includes('gone')?'gone':''}"><${tag} class="hex ${cls||''}" ${attrs||''}><span>${inner}</span></${tag}></div>`};
+const pn=(h,t)=>`<div class="panel" style="text-align:center"><h2>${h}</h2><p style="margin:0">${t}</p></div>`;
+const logo='<div class="logo" aria-hidden="true">?</div>';
+
+/* ---------- Räume ---------- */
+const rcode=()=>Array.from({length:4},()=>'abcdefghjkmnpqrstuvwxyz23456789'[Math.floor(Math.random()*31)]).join('');
+async function enter(role,code){
+ if(!R){S.msg='Der Mehrgeräte-Modus ist hier nicht verfügbar. Öffne die Seite angemeldet über den geteilten Link.';return false}
+ try{
+  const r=await R.join('wwm-'+code);S.room=r;S.code=code;S.role=role;
+  r.presence({role});
+  r.onPeers(devs);
+  if(role==='m'){r.on('hello',()=>sync());r.on('pick',onPick);r.on('ffans',onFF);clearInterval(S.sy);S.sy=setInterval(sync,4000)}
+  else{
+   r.on('state',m=>{if(m.isMe)return;P=m.data;if(P.scr==='ff'&&P.st==='ask'&&C.rid!==P.rid)C={rid:P.rid,t0:performance.now(),seq:[],sent:false};render()});
+   r.emit('hello',{}).catch(()=>{});clearInterval(S.hi);S.hi=setInterval(()=>{if(!P)r.emit('hello',{}).catch(()=>{})},3000)}
+  return true;
+ }catch(e){S.msg='Der Raum ist nicht erreichbar'+(e&&e.code?' ('+e.code+')':'')+'.';return false}
+}
+function devs(ch){
+ if(!S.room)return;
+ const ps=S.room.peers();
+ S.devs={p:ps.filter(x=>x.presence.role==='p').length,k:ps.filter(x=>x.presence.role==='k').length};
+ const e=document.getElementById('dev');if(e)e.textContent=devTxt();
+ if(ch&&ch.joined&&ch.joined.length)sync();
+}
+const devTxt=()=>S.devs.p+' Präsentation, '+S.devs.k+' Kandidaten';
+const hintOn=()=>S.hint===null?S.devs.p>0:S.hint;
+function pub(){
+ const b={scr:S.scr,players:S.players.map(p=>({n:p.name,w:p.win,d:p.d})),cur:S.cur,why:S.why};
+ if(S.scr==='game'&&S.g){const g=S.g,o=g.opts[g.i];
+  Object.assign(b,{i:g.i,q:g.qs[g.i].frage,o:o.o,hide:g.hide,sel:g.sel,st:g.st,c:g.st==='rev'?o.c:-1,jk:g.jk,aud:g.aud,tel:g.tel,who:S.players[S.cur].name})}
+ if(S.scr==='ff'&&S.ff){const x=S.ff,rdy=x.st==='ready';
+  Object.assign(b,{q:rdy?'':x.q,o:rdy?[]:x.o,st:x.st,rid:x.rid,done:Object.keys(x.res),elig:S.players.filter(p=>!p.d).map(p=>p.name),ord:x.st==='rev'?x.ord:null,rank:x.st==='rev'?x.rank:null})}
+ return b;
+}
+function sync(){if(S.room&&S.role==='m')S.room.emit('state',pub()).catch(()=>{})}
+function onPick(m){
+ const d=m.data,g=S.g;
+ if(S.scr==='game'&&g&&g.st==='ask'&&d&&d.n===S.players[S.cur].name&&Number.isInteger(d.k)&&d.k>=0&&d.k<4&&!g.hide.includes(d.k)){g.sel=d.k;gameV()}
+}
+function onFF(m){
+ const d=m.data,x=S.ff;
+ if(S.scr!=='ff'||!x||x.st!=='ask'||!d||d.rid!==x.rid)return;
+ const pl=S.players.find(p=>p.name===d.n);
+ if(!pl||pl.d||x.res[d.n]||!Array.isArray(d.seq)||d.seq.length!==4||new Set(d.seq).size!==4||d.seq.some(v=>!Number.isInteger(v)||v<0||v>3)||typeof d.ms!=='number')return;
+ x.res[d.n]={seq:d.seq,ms:Math.min(Math.max(Math.round(d.ms),0),600000)};
+ if(allIn())ffReveal();else render();
+}
+
+/* ---------- Navigation ---------- */
+function hd(back){return `<div class="top"><div class="brand">Show-Arena</div>${back?'<button class="ghost" onclick="hub()">Zum Menü</button>':''}</div>`}
+function hub(){
+ clearInterval(S.tmr);clearInterval(S.sy);clearInterval(S.hi);
+ if(S.room){S.room.leave();S.room=null}
+ S.role=null;P=null;S.scr='hub';S.msg='';render();
+}
+function render(){
+ app.className='wrap';
+ if(S.role==='p'||S.role==='k')return clientV();
+ const f=S.scr;
+ if(f==='hub')hubV();else if(f==='setup')setupV();else if(f==='ff')ffV();else if(f==='game')gameV();else if(f==='turn')turnV();else if(f==='end')endV();
+}
+function hubV(){
+ app.innerHTML=hd(0)+`<div class="hero">${logo}<h1>Heute Abend: ihr seid der Kandidat.</h1><p>Wählt eine Show, holt eure Freunde dazu und spielt reihum.</p></div><div class="grid">`+
+ SHOWS.map(s=>s.on?`<button class="card on" onclick="modStart()"><span class="ic">${s.ic}</span><h3>${s.name}</h3><p>${s.desc}</p><span class="tag">Als Moderation starten</span></button>`:`<div class="card off"><span class="ic">${s.ic}</span><h3>${s.name}</h3><p>${s.desc}</p><span class="tag" style="color:var(--mute)">Kommt bald</span></div>`).join('')+
+ `</div><div class="panel sec"><h2>Gerät beitreten</h2><p>Die Moderation zeigt einen Raumcode. Gib ihn hier ein und wähle, wofür dieses Gerät da ist.</p><div class="join"><input id="jc" maxlength="8" placeholder="Code" aria-label="Raumcode" autocapitalize="off"><button class="gold" onclick="joinAs('p')">Präsentation</button><button class="ghost" onclick="joinAs('k')">Kandidat</button></div>${S.msg?`<p style="margin:12px 0 0;color:var(--gold)">${esc(S.msg)}</p>`:''}</div>`;
+}
+async function joinAs(role){
+ const c=document.getElementById('jc').value.trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+ if(c.length<4){S.msg='Bitte gib den Raumcode ein.';return hubV()}
+ S.msg='';
+ if(await enter(role,c)){S.scr='client';P=null;render()}else hubV();
+}
+async function modStart(){
+ S.msg='';S.role='m';S.code=rcode();S.scr='setup';S.room=null;render();
+ if(await enter('m',S.code))devs();
+ render();
+}
+
+/* ---------- Setup + Fragen ---------- */
+function setupV(){
+ app.innerHTML=hd(1)+`<div class="panel"><h2>Wer spielt mit?</h2><p>Zuerst gibt es Fragen-Ordnen: Wer die vier Antworten richtig und am schnellsten sortiert, darf auf den Stuhl. Danach folgt die nächste Runde, bis alle dran waren.</p><div class="names">`+
+ S.names.map((n,i)=>`<input value="${esc(n)}" placeholder="Spieler ${i+1}" oninput="S.names[${i}]=this.value" aria-label="Name Spieler ${i+1}">`).join('')+
+ `</div><div class="row"><button class="ghost" onclick="addP()" ${S.names.length>=8?'disabled':''}>Spieler hinzufügen</button><button class="gold" onclick="start()">Show starten</button></div></div>`+
+ `<div class="panel sec"><h2>Geräte</h2>`+(S.room?`<p>Raumcode: <span class="big">${S.code}</span></p><p>Auf anderen Geräten die Startseite öffnen, den Code eingeben und „Präsentation“ oder „Kandidat“ wählen. Die Seite muss dafür mit Mitwirkenden-Rechten geteilt sein. Verbunden: <span id="dev">${devTxt()}</span></p>`:`<p>Der Mehrgeräte-Modus ist gerade nicht verfügbar${S.msg?': '+esc(S.msg):''}. Du kannst an diesem Gerät allein spielen.</p>`)+`</div>`+
+ `<div class="panel sec"><h2>Fragen</h2><p><span id="cnt">${cntTxt()}</span> Format: ein Objekt mit „fragen“ (je „stufe“ 1–15, „frage“, „antworten“ mit der richtigen zuerst) und „ordnen“ (je „frage“ und 4 „antworten“ in der richtigen Reihenfolge). Eine reine Liste gilt als „fragen“.</p><div class="row"><button class="ghost" onclick="exp()">Exportieren</button><button class="ghost" onclick="document.getElementById('jf').click()">Datei importieren</button><button class="ghost" onclick="impBox()">Aus Feld importieren</button><button class="ghost" onclick="resetBank()">Standard</button></div><input id="jf" type="file" accept=".json,application/json" hidden onchange="impFile(this)"><textarea id="jx" rows="5" placeholder="JSON hier einfügen oder nach dem Export kopieren"></textarea><p id="msg" style="margin:10px 0 0"></p></div>`;
+}
+const cntTxt=()=>S.bank.length+' Wissensfragen und '+S.ffb.length+' Ordnen-Fragen geladen.';
+function addP(){S.names.push('');setupV();const i=app.querySelectorAll('.names input');i[i.length-1].focus()}
+function setMsg(t){const e=document.getElementById('msg');if(e)e.textContent=t;const c=document.getElementById('cnt');if(c)c.textContent=cntTxt()}
+function saveBank(){try{localStorage.setItem('sa-bank2',JSON.stringify({fragen:S.bank,ordnen:S.ffb}))}catch(e){}}
+function doImport(t){
+ const r=parseAll(t);if(r.err)return setMsg(r.err);
+ if(r.bank)S.bank=r.bank;if(r.ffb)S.ffb=r.ffb;saveBank();
+ setMsg('Fertig importiert.');
+}
+function impFile(el){const f=el.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>doImport(String(rd.result));rd.readAsText(f);el.value=''}
+function impBox(){doImport(document.getElementById('jx').value)}
+function resetBank(){S.bank=DEF;S.ffb=DEFF;try{localStorage.removeItem('sa-bank2')}catch(e){}setMsg('Standardfragen sind wieder aktiv.')}
+async function exp(){
+ const t=JSON.stringify({fragen:S.bank,ordnen:S.ffb},null,1);document.getElementById('jx').value=t;
+ try{const d=await claude.use('downloads');if(!d)throw 0;await d.save({filename:'millionaer-fragen.json',data:t});setMsg('Export gespeichert. Der Text steht auch im Feld.')}
+ catch(e){setMsg('Der Text steht im Feld. Kopiere ihn in eine .json-Datei.')}
+}
+
+/* ---------- Fragen-Ordnen ---------- */
+function start(){
+ const seen={};
+ S.players=S.names.map((n,i)=>{let b=n.trim()||'Spieler '+(i+1),x=b,k=2;while(seen[x])x=b+' '+k++;seen[x]=1;return{name:x,win:0,d:false}});
+ S.used=new Set();S.usedF=new Set();nextRound();
+}
+function nextRound(){
+ const rem=S.players.map((p,i)=>i).filter(i=>!S.players[i].d);
+ if(!rem.length){S.scr='end';return render()}
+ if(rem.length===1){S.cur=rem[0];return newTurn()}
+ startFF();
+}
+function startFF(){
+ const pool=S.ffb.filter(x=>!S.usedF.has(x.frage)),q=shuf(pool.length?pool:S.ffb)[0];S.usedF.add(q.frage);
+ const o=shuf(q.antworten);
+ S.ff={q:q.frage,o,ord:q.antworten.map(a=>o.indexOf(a)),st:'ready',res:{},rid:String(Date.now()),loc:null,rank:null};
+ S.scr='ff';render();
+}
+const allIn=()=>S.players.filter(p=>!p.d).every(p=>S.ff.res[p.name]);
+function ffShow(){S.ff.st='ask';render()}
+function ffLoc(i){S.ff.loc={n:S.players[i].name,seq:[],t0:Date.now()};render()}
+function ffTap(k){
+ const x=S.ff,l=x.loc;if(!l||l.seq.includes(k))return;
+ l.seq.push(k);
+ if(l.seq.length===4){x.res[l.n]={seq:l.seq,ms:Date.now()-l.t0};x.loc=null;if(allIn())return ffReveal()}
+ render();
+}
+function ffReveal(){
+ const x=S.ff;x.st='rev';x.loc=null;
+ x.rank=S.players.filter(p=>!p.d).map(p=>{const r=x.res[p.name];return r?{n:p.name,ok:r.seq.every((v,i)=>v===x.ord[i]),ms:r.ms}:{n:p.name,ok:false,ms:null}})
+  .sort((a,b)=>(b.ok-a.ok)||((a.ms==null?1e9:a.ms)-(b.ms==null?1e9:b.ms)));
+ render();
+}
+function ffSeat(){S.cur=S.players.findIndex(p=>p.name===S.ff.rank[0].n);newTurn()}
+function ffBoard(p,mod){
+ let h=`<div class="who"><span>Fragen-Ordnen: Wer darf auf den Stuhl?</span><span>${p.elig.length} im Rennen</span></div>`;
+ if(p.st==='ready'){
+  h+=hx('q','Gleich geht’s los. Bringt die vier Antworten so schnell wie möglich in die richtige Reihenfolge.');
+  if(mod)h+=`<div class="row sec"><button class="gold" onclick="ffShow()">Frage zeigen</button></div>`;
+ }else{
+  h+=hx('q',esc(p.q));
+  if(p.st==='ask'){
+   h+=`<div class="ans">`+p.o.map((t,k)=>hx('a',`<i>${'ABCD'[k]}:</i>${esc(t)}`)).join('')+`</div>`;
+   h+=`<p class="who sec">`+p.elig.map(n=>`${esc(n)} ${p.done.includes(n)?'✓':'…'}`).join(' · ')+`</p>`;
+   if(mod)h+=ffCtl();
+  }else{
+   h+=`<div class="who">Richtige Reihenfolge</div><div class="ans">`+p.ord.map((di,r)=>hx('ok',`<i>${r+1}.</i><i>${'ABCD'[di]}:</i>${esc(p.o[di])}`)).join('')+`</div>`;
+   h+=`<ul class="score sec">`+p.rank.map((x,i)=>`<li${i===0&&x.ok?' class="win"':''}><span>${esc(x.n)}</span><b>${x.ms==null?'keine Antwort':(x.ok?fmtT(x.ms):'falsch')}</b></li>`).join('')+`</ul>`;
+   if(mod){const w=p.rank[0]&&p.rank[0].ok?p.rank[0].n:null;h+=w?`<button class="gold" onclick="ffSeat()">Auf den Stuhl: ${esc(w)}</button>`:`<p>Niemand hatte es richtig.</p><button class="gold" onclick="startFF()">Neue Frage</button>`}
+  }
+ }
+ return h;
+}
+function ffCtl(){
+ const x=S.ff;let h='<div class="row sec">';
+ if(x.loc)h+=`<div class="help" style="flex:1"><b>${esc(x.loc.n)}</b>: Tippe die Antworten in der richtigen Reihenfolge.<div class="row" style="margin-top:10px">`+[0,1,2,3].map(k=>`<button class="j" onclick="ffTap(${k})" ${x.loc.seq.includes(k)?'disabled':''}>${'ABCD'[k]}</button>`).join('')+`<span class="big">${x.loc.seq.map(k=>'ABCD'[k]).join(' ')}</span></div></div>`;
+ else S.players.forEach((p,i)=>{if(!p.d&&!x.res[p.name])h+=`<button class="ghost" onclick="ffLoc(${i})">${esc(p.name)} antwortet hier</button>`});
+ return h+`<button class="gold" onclick="ffReveal()">Auflösen</button></div>`;
+}
+function ffV(){app.innerHTML=hd(1)+modBar()+ffBoard(pub(),true);sync()}
+
+/* ---------- Stuhl ---------- */
+function pickQs(){return L.map((_,k)=>{const pool=S.bank.filter(x=>x.stufe===k+1),fresh=pool.filter(x=>!S.used.has(x.frage)),c=shuf(fresh.length?fresh:pool)[0];S.used.add(c.frage);return c})}
+function newTurn(){
+ const qs=pickQs();
+ S.g={i:0,qs,opts:qs.map(q=>{const o=shuf(q.antworten);return{o,c:o.indexOf(q.antworten[0])}}),hide:[],sel:null,st:'ask',jk:{f:1,a:1,p:1},aud:null,tel:0};
+ S.scr='game';render();
+}
+function ansCls(p,k){let c='a';if(p.hide.includes(k))c+=' gone';if(p.st==='rev'){if(k===p.c)c+=' ok';else if(k===p.sel)c+=' bad'}else if(p.sel===k)c+=' sel';return c}
+function board(p,mod){
+ const hint=mod&&hintOn()?S.g.opts[p.i].c:-1;
+ const lad=L.map((v,k)=>`<li class="${SAFE.includes(k)?'safe ':''}${k===p.i?'now ':''}${k<p.i?'done':''}"><span>${k+1}${SAFE.includes(k)?' ◆':''}</span><span>${fmt(v)}</span></li>`).join('');
+ const ans=p.o.map((t,k)=>{const c=ansCls(p,k),inner=`<i>${'ABCD'[k]}:</i>${esc(t)}${k===hint?'<em>✓</em>':''}`;return mod&&p.st==='ask'?hx(c,inner,'button',`onclick="pick(${k})"`):hx(c,inner)}).join('');
+ const J=[['f','50:50','50:50'],['p','👥','Publikumsjoker'],['a','📞','Telefonjoker']].map(([k,l,a])=>mod?`<button class="j" aria-label="${a}" ${p.jk[k]&&p.st==='ask'?'':'disabled'} onclick="joker('${k}')">${l}</button>`:`<div class="j ${p.jk[k]?'':'used'}" aria-label="${a}">${l}</div>`).join('');
+ let help='';
+ if(p.aud)help+=`<div class="help"><b>Publikum</b><div class="bars">`+p.aud.map((v,k)=>`<div class="bar"><span>${v}%</span><div style="height:${v}%"></div><b>${'ABCD'[k]}</b></div>`).join('')+`</div></div>`;
+ if(p.tel>0)help+=`<div class="help row" style="justify-content:space-between"><span><b>Telefonjoker:</b> Fragt einen Freund. Er darf laut mitraten.</span><span class="big" id="tel">${p.tel}</span></div>`;
+ let act='';
+ if(mod){if(p.st==='ask')act=`<button class="gold" ${p.sel===null?'disabled':''} onclick="lock()">Das ist meine Antwort</button> <button class="ghost" onclick="walk()">Aussteigen mit ${fmt(p.i?L[p.i-1]:0)}</button>`;else if(p.st==='rev')act=`<button class="gold" onclick="next()">${p.sel===p.c&&p.i===14?'Zur Million':'Weiter'}</button>`}
+ return `<div class="game"><div><div class="who"><span>Auf dem Stuhl: <b>${esc(p.who)}</b></span><span>Frage ${p.i+1} für ${fmt(L[p.i])}</span></div>${help}${hx('q',esc(p.q))}<div class="ans">${ans}</div><div class="jk">${J}</div><div class="row">${act}</div></div><ol class="ladder">${lad}</ol></div>`;
+}
+function modBar(){return `<div class="who"><span>${S.room?'Raumcode: <b>'+S.code+'</b> · <span id="dev">'+devTxt()+'</span>':'Nur dieses Gerät'}</span><label><input type="checkbox" ${hintOn()?'checked':''} onchange="S.hint=this.checked;render()"> Lösung für mich zeigen</label></div>`}
+function gameV(){app.innerHTML=hd(1)+modBar()+board(pub(),true);sync()}
+function pick(k){S.g.sel=k;gameV()}
+function lock(){const g=S.g;if(g.sel===null)return;g.st='locked';clearInterval(S.tmr);g.tel=0;gameV();setTimeout(()=>{g.st='rev';gameV()},1800)}
+function joker(t){
+ const g=S.g,o=g.opts[g.i];
+ if(t==='f'){g.jk.f=0;g.hide=shuf([0,1,2,3].filter(k=>k!==o.c)).slice(0,2)}
+ if(t==='p'){g.jk.p=0;const alive=[0,1,2,3].filter(k=>!g.hide.includes(k));const best=Math.max(35,85-g.i*4);let rest=100-best;const r=Array(4).fill(0);const others=alive.filter(k=>k!==o.c);others.forEach((k,x)=>{const v=x===others.length-1?rest:Math.floor(Math.random()*rest*0.7);r[k]=v;rest-=v});r[o.c]=best+rest;g.aud=r}
+ if(t==='a'){g.jk.a=0;g.tel=30;clearInterval(S.tmr);S.tmr=setInterval(()=>{g.tel--;const e=document.getElementById('tel');if(g.tel<=0){clearInterval(S.tmr);gameV()}else{if(e)e.textContent=g.tel;sync()}},1000)}
+ gameV();
+}
+function walk(){clearInterval(S.tmr);finish(S.g.i?L[S.g.i-1]:0,'Ausgestiegen')}
+function next(){
+ const g=S.g,o=g.opts[g.i];
+ if(g.sel===o.c){if(g.i===14)return finish(1000000,'Million gewonnen!');g.i++;g.sel=null;g.st='ask';g.hide=[];g.aud=null;gameV()}
+ else{const s=[...SAFE].reverse().find(k=>k<g.i);finish(s===undefined?0:L[s],'Falsche Antwort')}
+}
+function finish(amt,why){clearInterval(S.tmr);const p=S.players[S.cur];p.win=amt;p.d=true;S.why=why;S.scr='turn';render()}
+function turnP(p,mod){
+ const w=p.players[p.cur],rem=p.players.filter(x=>!x.d).length;
+ const btn=mod?`<button class="gold" onclick="nextRound()">${rem?'Weiter mit Fragen-Ordnen':'Endstand ansehen'}</button>`:(rem?'':'<p style="margin:0">Gleich kommt der Endstand.</p>');
+ return `<div class="panel" style="text-align:center"><p>${esc(p.why)}</p><h2>${esc(w.n)}</h2><div class="big" style="margin:10px 0 20px">${fmt(w.w)}</div>${btn}</div>`;
+}
+function endP(p,mod){
+ const r=p.players.slice().sort((a,b)=>b.w-a.w);
+ return `<div class="panel"><h2>Endstand</h2><p>${esc(r[0].n)} gewinnt den Abend.</p><ul class="score">`+r.map(x=>`<li><span>${esc(x.n)}</span><b>${fmt(x.w)}</b></li>`).join('')+`</ul>`+(mod?`<div class="row"><button class="gold" onclick="start()">Nochmal spielen</button><button class="ghost" onclick="hub()">Zum Menü</button></div>`:'')+`</div>`;
+}
+function turnV(){app.innerHTML=hd(1)+modBar()+turnP(pub(),true);sync()}
+function endV(){app.innerHTML=hd(1)+modBar()+endP(pub(),true);sync()}
+
+/* ---------- Präsentation und Kandidat ---------- */
+function setMe(i){myName=P.players[i].n;render()}
+function cpick(k){P.sel=k;S.room.emit('pick',{n:myName,k}).catch(()=>{});render()}
+function ffc(k){
+ if(C.sent||C.seq.includes(k))return;
+ C.seq.push(k);
+ if(C.seq.length===4){C.sent=true;S.room.emit('ffans',{n:myName,seq:C.seq,ms:Math.round(performance.now()-C.t0),rid:P.rid}).catch(()=>{})}
+ render();
+}
+function ffr(){if(!C.sent){C.seq=[];render()}}
+function clientV(){
+ const pres=S.role==='p';
+ app.className='wrap'+(pres?' pres':' cand');
+ const head=`<div class="top"><div class="brand">Show-Arena</div><span class="who" style="margin:0">${pres?'Präsentation':'Kandidat'} · Raum ${S.code}</span><button class="ghost" onclick="hub()">Verlassen</button></div>`;
+ let b;
+ if(!P||!P.scr||P.scr==='setup')b=`<div class="panel" style="text-align:center">${logo}<h2>Verbunden</h2><p style="margin:0">Warte auf die Moderation …</p></div>`;
+ else if(pres)b=P.scr==='ff'?ffBoard(P,false):P.scr==='game'?board(P,false):P.scr==='turn'?turnP(P,false):endP(P,false);
+ else b=candBody();
+ app.innerHTML=head+b;
+}
+function candFF(){
+ const el=P.elig.includes(myName);
+ if(P.st==='ready')return pn('Gleich geht’s los','Gleich erscheint die Frage. Sei schnell!');
+ if(P.st==='ask'){
+  if(!el)return pn('Du warst schon dran','Schau zur Präsentation.');
+  if(C.sent||P.done.includes(myName))return pn('Abgeschickt','Warte auf die anderen …');
+  const ans=P.o.map((t,k)=>{const n=C.seq.indexOf(k);return hx(n>=0?'a sel':'a',`<i>${n>=0?(n+1)+'.':'ABCD'[k]+':'}</i>${esc(t)}`,'button',`onclick="ffc(${k})" ${n>=0?'disabled':''}`)}).join('');
+  return `<div class="who"><span>Tippe die Antworten in der richtigen Reihenfolge an.</span></div>${hx('q',esc(P.q))}<div class="ans">${ans}</div><div class="row"><button class="ghost" onclick="ffr()">Neu anordnen</button></div>`;
+ }
+ const i=P.rank.findIndex(x=>x.n===myName);
+ if(i<0)return pn('Ergebnis','Du warst in dieser Runde nicht dabei.');
+ const r=P.rank[i];
+ return pn(r.ok?(i===0?'Du hast gewonnen!':'Richtig, aber nicht am schnellsten'):'Leider falsch',r.ms==null?'Du hast nicht geantwortet.':fmtT(r.ms));
+}
+function candBody(){
+ if(!P.players.length)return pn('Verbunden','Warte auf die Moderation …');
+ if(!P.players.some(p=>p.n===myName))return `<div class="panel"><h2>Wer bist du?</h2><p>Wähle deinen Namen.</p><div class="names">${P.players.map((p,i)=>`<button class="ghost" onclick="setMe(${i})">${esc(p.n)}</button>`).join('')}</div></div>`;
+ if(P.scr==='ff')return candFF();
+ if(P.scr==='turn'){const w=P.players[P.cur];return `<div class="panel" style="text-align:center"><p>${esc(P.why)}</p><h2>${esc(w.n)}</h2><div class="big">${fmt(w.w)}</div></div>`}
+ if(P.scr==='end'){const me=P.players.find(p=>p.n===myName);return pn('Endstand','Dein Ergebnis: '+fmt(me.w))}
+ const active=myName===P.who,act=active&&P.st==='ask';
+ const ans=P.o.map((t,k)=>{const c=ansCls(P,k),inner=`<i>${'ABCD'[k]}:</i>${esc(t)}`;return act&&!P.hide.includes(k)?hx(c,inner,'button',`onclick="cpick(${k})"`):hx(c,inner)}).join('');
+ return `<div class="who"><span>${active?'<b>Du bist dran</b>':esc(P.who)+' ist dran'}</span><span>${fmt(L[P.i])}</span></div>${hx('q',esc(P.q))}<div class="ans">${ans}</div>`+(act?`<p class="who" style="margin-top:14px">Tippe deine Antwort an. Die Moderation bestätigt sie.</p>`:'');
+}
+render();
+</script>
+</body>
+</html>
